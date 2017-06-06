@@ -2,9 +2,9 @@
 # Event config
 event:
   timezone: Europe/Berlin
-  acronym: OC
-  name: OpenChaos
-  slogan: "Explosive talks at the C4"
+  acronym: RC
+  name: RustCologne
+  slogan: The recurring assembly of Rust enthusiasts in the fair city of Cologne, Germany
   formats:
     hd: 'yes'
     sd: 'yes'
