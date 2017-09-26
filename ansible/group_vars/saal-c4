@@ -1,0 +1,29 @@
+---
+room_number: 97
+room_fahrplan_name: C4
+grabber_aspect: 16x9
+grabbersource_url_path: stream.mjpg
+
+# hd-direct, hd-voctomix
+# deploy with --tags encodermode
+# reboot encoder after changing
+encodermode: hd-voctomix
+
+# check `vainfo` before and read https://github.com/voc/voctomix/pull/87#issuecomment-250289443
+voctomix_vaapi: false
+
+# encoder 1-5 can't handle more then 3 video-feeds
+voctomix_sources:
+  -
+    name: cam1
+    type: decklink-internal
+    devicenumber: 0
+    video_connection: SDI
+    video_mode: "1080i50"
+    volume: 1.0
+  -
+    name: slides
+    type: decklink-internal
+    devicenumber: 1
+    video_connection: HDMI
+    video_mode: "1080p24"

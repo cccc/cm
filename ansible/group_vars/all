@@ -1,9 +1,9 @@
 ---
 # Event config
 event:
-  acronym: xyz
-  name: XYZ
-  slogan: ""
+  acronym: OC
+  name: OpenChaos
+  slogan: "Explosive talks at the C4"
   formats:
     hd: 'yes'
     sd: 'yes'
@@ -175,8 +175,11 @@ users:
   - { name: 'zuntrax', state: 'present' } # SHA
   - { name: 'jayjay', state: 'present' } 
   - { name: 'cardno', state: 'absent' } # cristoph fcmc
+  - { name: 'nils', state: 'present' }
+  - { name: 'twix', state: 'present' }
+  - { name: 'yanosz', state: 'present' }
   - { name: 'voc', state: 'present' }
 
 additional_users: []
 
-distribution_mode: icedist
+#distribution_mode: icedist
