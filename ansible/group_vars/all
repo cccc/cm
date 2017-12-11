@@ -145,36 +145,36 @@ nginx_ips_allow_stats: [
 ]
 
 users:
-  - { name: 'andi', state: 'present' }
-  - { name: 'anton', state: 'present' }
-  - { name: 'atze', state: 'present' }
-  - { name: 'bjoern', state: 'present' }
-  - { name: 'coeins', state: 'present' }
-  - { name: 'derpeter', state: 'present' }
-  - { name: 'danimo', state: 'present' }
+#  - { name: 'andi', state: 'present' }
+#  - { name: 'anton', state: 'present' }
+#  - { name: 'atze', state: 'present' }
+#  - { name: 'bjoern', state: 'present' }
+#  - { name: 'coeins', state: 'present' }
+#  - { name: 'derpeter', state: 'present' }
+#  - { name: 'danimo', state: 'present' }
   - { name: 'florob', state: 'present' }
-  - { name: 'florolf', state: 'present' }
-  - { name: 'fxkr', state: 'present' }
+#  - { name: 'florolf', state: 'present' }
+#  - { name: 'fxkr', state: 'present' }
   - { name: 'ike', state: 'present' }
-  - { name: 'jwacalex', state: 'present' }
-  - { name: 'lhampe', state: 'present' }
-  - { name: 'masterbase', state: 'present' }
-  - { name: 'mazdermind', state: 'present' }
-  - { name: 'meise', state: 'present' }
-  - { name: 'thomic', state: 'present' }
-  - { name: 'v0tti', state: 'present' }
-  - { name: 'felixs', state: 'present' } # selfnet, foss4g
-  - { name: 'nihilus', state: 'present' } # nobody
-  - { name: 'lukas2511', state: 'present' } # lets encrypt sh mensch
-  - { name: 'dedeibel', state: 'present' }
-  - { name: 'pegro', state: 'present' }
-  - { name: 'bix', state: 'present' }  # SHA
-  - { name: 'dave', state: 'present' } # SHA
-  - { name: 'arl4223', state: 'absent' } # NOC
-  - { name: 'holger', state: 'absent' } # Debian
-  - { name: 'zuntrax', state: 'present' } # SHA
-  - { name: 'jayjay', state: 'present' } 
-  - { name: 'cardno', state: 'absent' } # cristoph fcmc
+#  - { name: 'jwacalex', state: 'present' }
+#  - { name: 'lhampe', state: 'present' }
+#  - { name: 'masterbase', state: 'present' }
+#  - { name: 'mazdermind', state: 'present' }
+#  - { name: 'meise', state: 'present' }
+#  - { name: 'thomic', state: 'present' }
+#  - { name: 'v0tti', state: 'present' }
+#  - { name: 'felixs', state: 'present' } # selfnet, foss4g
+#  - { name: 'nihilus', state: 'present' } # nobody
+#  - { name: 'lukas2511', state: 'present' } # lets encrypt sh mensch
+#  - { name: 'dedeibel', state: 'present' }
+#  - { name: 'pegro', state: 'present' }
+#  - { name: 'bix', state: 'present' }  # SHA
+#  - { name: 'dave', state: 'present' } # SHA
+#  - { name: 'arl4223', state: 'absent' } # NOC
+#  - { name: 'holger', state: 'absent' } # Debian
+#  - { name: 'zuntrax', state: 'present' } # SHA
+#  - { name: 'jayjay', state: 'present' } 
+#  - { name: 'cardno', state: 'absent' } # cristoph fcmc
   - { name: 'nils', state: 'present' }
   - { name: 'twix', state: 'present' }
   - { name: 'yanosz', state: 'present' }
