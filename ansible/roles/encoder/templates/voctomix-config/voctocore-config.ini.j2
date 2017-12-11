@@ -19,7 +19,9 @@ video_connection={{ source.video_connection | default('SDI') | upper }}
 video_mode={{ source.video_mode }}
 audio_connection=embedded
 
+{% if source.volume is defined %}
 volume={{ source.volume | default('0.0') }}
+{% endif %}
 
 {% if source.deinterlace is defined %}
 deinterlace={{ source.deinterlace }}
@@ -52,22 +54,22 @@ default-a=slides
 
 [side-by-side-equal]
 gutter=20
-atop=80
-btop=466
+atop=466
+btop=80
 
 default-a=slides
 
 [side-by-side-preview]
 asize=1420x799
-apos=20/160
+apos=480/160
 bsize=496x279
-bpos=1404/781
+bpos=20/781
 
 default-a=slides
 
 [picture-in-picture]
 pipsize=496x279
-pippos=1404/781
+pippos=20/781
 
 default-a=slides
 
