@@ -5,6 +5,8 @@
 LIMIT_DISK_USAGE=90
 LIMIT_LOAD=$(echo "$(grep processor /proc/cpuinfo | wc -l) * 2" | bc)
 
+TRUNC_HOSTNAME=$(hostname -f | cut -d. -f1-2)
+
 send_mqtt_message () {
   error_level=$1
   component=$2
@@ -25,7 +27,7 @@ check_disk_space () {
     disk_space_avilable=$(echo $line | awk '{ print $4 }')
 
     if [ "$disk_usage_percent" -ge "$LIMIT_DISK_USAGE" ]; then
-      send_mqtt_message "error" "system/disk/{{ ansible_hostname }}" "<red>$mount_point: disk usage $disk_usage_percent%, only $disk_space_avilable left of $disk_space</red>"
+      send_mqtt_message "error" "system/disk/${TRUNC_HOSTNAME}" "<red>$mount_point: disk usage $disk_usage_percent%, only $disk_space_avilable left of $disk_space</red>"
     fi
   done
 }
@@ -39,7 +41,7 @@ check_load () {
   local truncated_load=$(echo "$load_5_minutes" | cut -d. -f1)
 
   if [ "$truncated_load" -ge "$LIMIT_LOAD" ]; then
-    send_mqtt_message "error" "system/load/{{ ansible_hostname }}" "system load: $load_1_minute, $load_5_minutes, $load_15_minutes</red>"
+    send_mqtt_message "error" "system/load/${TRUNC_HOSTNAME}" "system load: $load_1_minute, $load_5_minutes, $load_15_minutes</red>"
   fi
 }
 
@@ -50,7 +52,7 @@ check_recording () {
     error_code=$?
 
     if [ "2" -eq "$error_code" ]; then
-      send_mqtt_message "error" "recording/{{ ansible_hostname }}" "<red>${message}</red> /video/capture/{{ event.acronym }}/"
+      send_mqtt_message "error" "recording/${TRUNC_HOSTNAME}" "<red>${message}</red> /video/capture/{{ event.acronym }}/"
     fi
   fi
 }
@@ -59,7 +61,7 @@ check_recording () {
 #
 #  * mdadm status of existing md devices
 #  * megacli raid controller status via wrapper raidstatus
-#    (available e.g. on storage and {{ ansible_hostname }})
+#    (available e.g. on storage and ${TRUNC_HOSTNAME})
 #  * megacli battery status via wrapper raidstatus
 #
 check_raid () {
@@ -70,7 +72,7 @@ check_raid () {
 
       echo $raid_device_state | grep -q "_"
       if [ "0" -eq "$?" ]; then
-        send_mqtt_message "error" "system/raid/{{ ansible_hostname }}" "<red>RAID disk failed: $raid_device: $raid_device_state"
+        send_mqtt_message "error" "system/raid/${TRUNC_HOSTNAME}" "<red>RAID disk failed: $raid_device: $raid_device_state"
       fi
     done
   fi
@@ -80,7 +82,7 @@ check_raid () {
     if [ "0" -eq "$?" ]; then
       echo $raid_status | grep -q "Optimal"
       if [ "1" -eq "$?" ]; then
-        send_mqtt_message "error" "system/raid/{{ ansible_hostname }}" "<red>RAID status is not 'Optimal': please run 'raidstatus status' for more information</red>"
+        send_mqtt_message "error" "system/raid/${TRUNC_HOSTNAME}" "<red>RAID status is not 'Optimal': please run 'raidstatus status' for more information</red>"
       fi
     fi
 
@@ -88,7 +90,7 @@ check_raid () {
     echo $bat_status | grep -q "Optimal"
     if [ "0" -eq "$?" ]; then
       if [ "1" -eq "$?" ]; then
-        send_mqtt_message "error" "system/raid/{{ ansible_hostname }}" "<red>RAID battery status is not 'Optimal': please run 'raidstatus bat' for more information</red>"
+        send_mqtt_message "error" "system/raid/${TRUNC_HOSTNAME}" "<red>RAID battery status is not 'Optimal': please run 'raidstatus bat' for more information</red>"
       fi
     fi
   fi
@@ -101,18 +103,24 @@ check_raid () {
 #
 #     * OOM situations
 #     * hanging tasks for more then 120 seconds
+#     * CPU throttling
 #
 check_logs () {
   kernel_log=$(journalctl _TRANSPORT=kernel --since "10 minutes ago")
 
   task_blocked=$(echo $kernel_log | grep -q "blocked for more than")
   if [ "0" -eq "$?" ]; then
-    send_mqtt_message "error" "system/kernel/{{ ansible_hostname }}" "<red>Task '$(echo $task_blocked | awk '{ print $8 }' | xargs | tr ' ' ',')' blocked for more than 120 seconds.</red>"
+    send_mqtt_message "error" "system/kernel/${TRUNC_HOSTNAME}" "<red>Task '$(echo $task_blocked | awk '{ print $8 }' | xargs | tr ' ' ',')' blocked for more than 120 seconds.</red>"
   fi
 
   oom_messages=$(echo $kernel_log | grep -q "Out of memory")
   if [ "0" -eq "$?" ]; then
-    send_mqtt_message "error" "system/kernel/{{ ansible_hostname }}" "<red>OOM killer killed processes!</red>"
+    send_mqtt_message "error" "system/kernel/${TRUNC_HOSTNAME}" "<red>OOM killer killed processes!</red>"
+  fi
+
+  throttle_messages=$(echo $kernel_log | grep -q "cpu clock throttled")
+  if [ "0" -eq "$?" ]; then
+    send_mqtt_message "error" "system/kernel/${TRUNC_HOSTNAME}" "<red>CPU throttled!</red>"
   fi
 }
 
@@ -133,30 +141,50 @@ check_logs () {
 #  * no bond status check
 #
 check_interfaces () {
-  for interface in $(grep "iface" /etc/network/interfaces | grep -vE "iface lo |#|br|bond.*\..*" | awk '{ print $2 }' | sort | uniq); do
+  for interface in $(grep "iface" /etc/network/interfaces | grep -vE "iface lo |#|br|bond.*\..*|monitoring-ignore-me" | awk '{ print $2 }' | sort | uniq); do
     if [ "$(systemd-detect-virt)" = "none" ] && [ "$(grep -q up /sys/class/net/${interface}/operstate; echo $?)" -eq "0" ]; then
       # we need at least 1gbit
       if [ -e "/sys/class/net/${interface}/speed" ]; then
         if [ "$(cat /sys/class/net/${interface}/speed)" -lt "1000" ]; then
-          send_mqtt_message "error" "system/interface/${interface}/{{ ansible_hostname }}" "<red>${interface} has lass then 1Gbit/s</red>"
+          send_mqtt_message "error" "system/interface/${interface}/${TRUNC_HOSTNAME}" "<red>${interface} has lass then 1Gbit/s</red>"
         fi
       fi
       # we need full-dumplex
       if [ -e "/sys/class/net/${interface}/duplex" ]; then
         if [ "$(grep -q "full" /sys/class/net/${interface}/duplex; echo $?)" -eq "1" ]; then
-          send_mqtt_message "error" "system/interface/${interface}/{{ ansible_hostname }}" "<red>${interface} runs not in full-dumplex mode!</red>"
+          send_mqtt_message "error" "system/interface/${interface}/${TRUNC_HOSTNAME}" "<red>${interface} runs not in full-dumplex mode!</red>"
         fi
       fi
     fi
   done
 }
 
+
+# check_temperature implements:
+#   * intel cpu temperature with coretemp
+check_temperature () {
+  for hwmon in $(ls -d /sys/class/hwmon/hwmon*); do
+    if [ $(cat ${hwmon}/name) = "coretemp" ]; then
+      for temp in $(ls ${hwmon}/temp*_label | grep -o "temp."); do
+        value="$(cat ${hwmon}/${temp}_input)"
+        limit="$(cat ${hwmon}/${temp}_crit)"
+        if [ $(echo "${value} > (${limit}*0.95)" | bc) -eq "1" ]; then
+          label="$(cat ${hwmon}/${temp}_label)"
+          send_mqtt_message "error" "system/temp/${TRUNC_HOSTNAME}" "<red>${label} temp critical at $(echo "${value}/1000" | bc) °C</red>"
+          break 2
+        fi
+      done
+    fi
+  done
+}
+
+
 # send system uptime in every run
 ping () {
   hostname="$(hostname -f)"
   uptime="$(cat /proc/uptime | awk '{ print $1 }')"
-  mosquitto_pub --capath /etc/ssl/certs/ -h "{{ mqtt.server }}" -p 8883 -u "{{ mqtt.username }}" -P "{{ mqtt.password }}" -t "/voc/checkin" -m "{ \"name\": \"${hostname}\", \"interval\": \"60\", \"additional_data\": { \"uptime\": ${uptime} }}"
-} 
+  mosquitto_pub --capath /etc/ssl/certs/ -h "mng.ber.c3voc.de" -p 8883 -u "fahrplan" -P "than_feat7apart" -t "/voc/checkin" -m "{ \"name\": \"${hostname}\", \"interval\": \"60\", \"additional_data\": { \"uptime\": ${uptime} }}"
+}
 
 # general checks
 ping
@@ -165,6 +193,7 @@ check_disk_space
 check_raid
 check_logs
 check_interfaces
+check_temperature
 
 # special cases
 if [ "0" -eq "$(hostnamectl status --static | grep -q "encoder"; echo $?)" ]; then

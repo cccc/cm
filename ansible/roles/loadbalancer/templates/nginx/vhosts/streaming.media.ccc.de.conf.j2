@@ -15,7 +15,7 @@ map $upstream_http_content_length $flag_cache_empty {
 server {
   server_name streaming.media.ccc.de;
 
-  listen [::1]:8080  ipv6only=off;
+  listen 127.0.0.1:8080;
 
   root /srv/nginx/htdocs;
   index index.php;
@@ -44,7 +44,7 @@ server {
   # Example: http://streaming.media.ccc.de/configs/conferences/gpn15/wolkenbar.png
   #          http://streaming.media.ccc.de/assets/js/lib/jquery.min.js
   #
-  location ~* (.+\/assets|assets|configs\/conferences).+.(jpg|jpeg|gif|png|ico|ttf|svg|woff|swf|mp4|webm)$ {
+  location ~* (.+\/assets|assets|configs\/conferences).+.(jpg|jpeg|gif|png|ico|ttf|svg|woff|swf|mp4|webm|xml|ics|html)$ {
     expires 24h;
     add_header Cache-Control "public";
   }
