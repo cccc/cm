@@ -1,6 +1,6 @@
 ---
 room_number: 97
-room_fahrplan_name: C4
+room_fahrplan_name: Tor 28
 grabber_aspect: 16x9
 grabbersource_url_path: stream.mjpg
 
@@ -24,6 +24,13 @@ voctomix_sources:
     video_connection: SDI
     video_mode: "1080i50"
     volume: 1.0
+    deinterlace: "yes"
+  -
+    name: cam2
+    type: decklink-internal
+    devicenumber: 2
+    video_connection: SDI
+    video_mode: "1080i50"
     deinterlace: "yes"
   -
     name: slides

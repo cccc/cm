@@ -1,9 +1,9 @@
 ---
 # Event config
 event:
-  acronym: OC
-  name: OpenChaos
-  slogan: "Explosive talks at the C4"
+  acronym: jh18_koeln
+  name: Jugend hackt Köln 2018
+  slogan: Mit Code die Welt verbessern
   formats:
     hd: 'yes'
     sd: 'yes'
