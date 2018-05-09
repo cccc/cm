@@ -30,8 +30,7 @@ voctomix_sources:
     type: decklink-internal
     devicenumber: 2
     video_connection: SDI
-    video_mode: "1080i50"
-    deinterlace: "yes"
+    video_mode: "1080p25"
   -
     name: slides
     type: decklink-internal
