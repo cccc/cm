@@ -52,8 +52,8 @@ mixer-muc.lan.c3voc.de
 #minion-muc.lan.c3voc.de transcoder_streams='["s4"]'
 #minion6.lan.c3voc.de
 
-speedy.lan.c3voc.de     transcoder_streams='["s1", "s2", "s3", "s4", "s5", "s6", "q1", "q2", "sX", "s23"]' transcoder_streams_enabled='["s1", "s2", "s3", "q1", "sX"]'  transcoder_lounges='["a1", "a2"]'
-tweety.lan.c3voc.de     transcoder_streams='["s1", "s2", "s3", "s4", "s5", "s6", "q1", "q2", "sX", "s23"]' transcoder_streams_enabled='["s4", "s5", "s6", "q2", "s23"]' transcoder_lounges='["a3", "a4"]'
+speedy.lan.c3voc.de     transcoder_streams='["s1", "s2", "s3", "s4", "s5", "s6", "q1", "q2", "sX", "s23", "s41", "s42", "s80"]' transcoder_streams_enabled='["s1", "s2", "s3", "q1", "sX"]'  transcoder_lounges='["a1", "a2"]'
+tweety.lan.c3voc.de     transcoder_streams='["s1", "s2", "s3", "s4", "s5", "s6", "q1", "q2", "sX", "s23", "s41", "s42", "s80"]' transcoder_streams_enabled='["s4", "s5", "s6", "q2", "s23", "s80"]' transcoder_lounges='["a3", "a4"]'
 
 [encoders]
 encoder1.lan.c3voc.de  crs_token="{{ lookup('keepass', 'ansible/worker-groups/encoder1.username') }}" crs_secret="{{ lookup('keepass', 'ansible/worker-groups/encoder1.password') }}" crs_token_meta="{{ lookup('keepass', 'ansible/worker-groups/encoder1-meta.username') }}" crs_secret_meta="{{ lookup('keepass', 'ansible/worker-groups/encoder1-meta.password') }}"
@@ -69,7 +69,7 @@ encoderc4.lan.c3voc.de crs_token="{{ lookup('keepass', 'ansible/worker-groups/en
 encoder-muc.lan.c3voc.de crs_token="{{ lookup('keepass', 'ansible/worker-groups/encoder-muc.username') }}" crs_secret="{{ lookup('keepass', 'ansible/worker-groups/encoder-muc.password') }}"
 
 [mixers]
-mixer[1:6].lan.c3voc.de crs_token="{{ lookup('keepass', 'ansible/worker-groups/mixer.username') }}" crs_secret="{{ lookup('keepass', 'ansible/worker-groups/mixer.username') }}"
+mixer[1:7].lan.c3voc.de crs_token="{{ lookup('keepass', 'ansible/worker-groups/mixer.username') }}" crs_secret="{{ lookup('keepass', 'ansible/worker-groups/mixer.username') }}"
 mixer-muc.lan.c3voc.de
 
 
@@ -97,7 +97,11 @@ deskjet.lan.c3voc.de crs_token="{{ lookup('keepass', 'ansible/worker-groups/desk
 monitoring.lan.c3voc.de
 router.lan.c3voc.de router_pbl_ip=194.95.66.38 router_pbl_mask=255.255.255.0 router_pbl_gw=194.95.66.1
 phony.lan.c3voc.de
-web.ber.c3voc.de
+fempeg.lan.c3voc.de
+web.c3voc.de
+mng.c3voc.de  ansible_ssh_host=185.106.84.49
+monitoring.c3voc.de
+build.c3voc.de
 
 # Streaming server
 [relays]

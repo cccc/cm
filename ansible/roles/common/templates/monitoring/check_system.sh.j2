@@ -7,6 +7,7 @@ LIMIT_DISK_USAGE=90
 LIMIT_LOAD=$(echo "$(grep processor /proc/cpuinfo | wc -l) * 2" | bc)
 
 TRUNC_HOSTNAME=$(hostname -f | cut -d. -f1-2)
+HYPERVISOR=$(dmesg | grep "Hypervisor detected")
 
 send_mqtt_message () {
   error_level=$1
@@ -191,22 +192,42 @@ check_interfaces () {
 # check_temperature implements:
 #   * intel cpu temperature with coretemp
 check_temperature () {
-  for hwmon in $(ls -d /sys/class/hwmon/hwmon*); do
-    if [ $(cat ${hwmon}/name) = "coretemp" ]; then
-      for temp in $(ls ${hwmon}/temp*_label | grep -o "temp."); do
-        value="$(cat ${hwmon}/${temp}_input)"
-        limit="$(cat ${hwmon}/${temp}_crit)"
+  if [ -d "/sys/class/hwmon/hwmon0" ]; then
+    for hwmon in $(ls -d /sys/class/hwmon/hwmon*); do
+      if [ $(cat ${hwmon}/name) = "coretemp" ]; then
+        for temp in $(ls ${hwmon}/temp*_label | grep -o "temp."); do
+          value="$(cat ${hwmon}/${temp}_input)"
+          limit="$(cat ${hwmon}/${temp}_crit)"
 
-        debug_output "temp" $temp $value $limit
-        if [ $(echo "${value} > (${limit}*0.95)" | bc) -eq "1" ]; then
-          label="$(cat ${hwmon}/${temp}_label)"
-          send_mqtt_message "error" "system/temp/${TRUNC_HOSTNAME}" "<red>${label} temp critical at $(echo "${value}/1000" | bc) °C</red>"
-          break 2
-        fi
+          debug_output "temp" $temp $value $limit
+          if [ $(echo "${value} > (${limit}*0.95)" | bc) -eq "1" ]; then
+            label="$(cat ${hwmon}/${temp}_label)"
 
-      done
-    fi
-  done
+            # Don't send temp messages for minions. Possible occurrence of smoke
+            # from the device is normal and harmless.
+            if [ "1" -eq "$(hostnamectl status --static | grep -q "minion"; echo $?)" ]; then
+              send_mqtt_message "error" "system/temp/${TRUNC_HOSTNAME}" "<red>${label} temp critical at $(echo "${value}/1000" | bc) °C</red>"
+            fi
+            break 2
+          fi
+
+        done
+      fi
+    done
+  fi
+}
+
+
+# check_updates implements:
+#
+# * runs 'apt update'
+# * parse avaible upgradable packes from output
+#
+check_updates () {
+  updates=$(apt update 2>/dev/null  | grep "can be upgraded")
+  if [ "0" -eq "$?" ]; then
+    send_mqtt_message "error" "system/updates/${TRUNC_HOSTNAME}" "<yellow>$(echo $updates | cut -d '.' -f 1).</yellow> <red>Uptime:</red> <yellow>$(uptime | cut -d ',' -f 1)</yellow>"
+  fi
 }
 
 
@@ -214,10 +235,33 @@ check_temperature () {
 ping () {
   hostname="$(hostname -f)"
   uptime="$(cat /proc/uptime | awk '{ print $1 }')"
-  mosquitto_pub --capath /etc/ssl/certs/ -h "mng.ber.c3voc.de" -p 8883 -u "fahrplan" -P "than_feat7apart" -t "/voc/checkin" -m "{ \"name\": \"${hostname}\", \"interval\": \"60\", \"additional_data\": { \"uptime\": ${uptime} }}"
+  mosquitto_pub --capath /etc/ssl/certs/ -h "{{ mqtt.server }}" -p 8883 -u "{{ mqtt.username }}" -P "{{ mqtt.password }}" -t "/voc/checkin" -m "{ \"name\": \"${hostname}\", \"interval\": \"60\", \"additional_data\": { \"uptime\": ${uptime} }}"
 
   debug_output "ping" $hostname $uptime
 }
+
+# Check voc related websites
+check_http () {
+  http_urls="https://streaming.media.ccc.de https://c3voc.de https://c3voc.de/wiki https://tracker.c3voc.de https://c3voc.de/eventkalender"
+
+  for url in $(echo $http_urls); do
+    error_code=$(curl -I ${url} 2>/dev/null | head -n1 | cut -d ' ' -f 2)
+    if [ -z "${error_code}" ]; then
+      break
+    fi
+
+    # remove unneeded stuff
+    error_code=$(echo $error_code | tr '\r' ' ')
+
+    if [ "$error_code" = "html>" ]; then
+      send_mqtt_message "error" "system/http/${TRUNC_HOSTNAME}" "<yellow>${url}</yellow><red>: website br0ken</red>"
+    elif  [ "$error_code" -gt "302" ]; then
+      send_mqtt_message "error" "system/http/${TRUNC_HOSTNAME}" "<yellow>${url}</yellow><red>: error code </red><yellow>${error_code}</yellow>"
+    fi
+    sleep 1
+  done
+}
+
 
 # general checks
 ping
@@ -226,11 +270,31 @@ check_disk_space
 check_raid
 check_logs
 check_interfaces
-check_temperature
+
 
 # special cases
 if [ "0" -eq "$(hostnamectl status --static | grep -q "encoder"; echo $?)" ]; then
   check_recording
 fi
+# only check temperature on real hardware
+if [ -z "${HYPERVISOR}" ]; then
+  check_temperature
+fi
+# check for updates every month 23rd 20:42
+if [ "232042" = "$(date +'%e%H%M')" ]; then
+  check_updates
+fi
+
+if [ "mng.ber.c3voc.de" = "$(hostname -f)" ]; then
+  check_http
+fi
+
+
+# repeat ping to prevent false alarms due to packet loss
+sleep 1
+ping
+sleep 1
+ping
+
 
 exit 0
