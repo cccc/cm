@@ -5,9 +5,6 @@ event:
   acronym: OC
   name: OpenChaos
   slogan: "Explosive talks at the C4"
-  acronym: XXX
-  name: XXX
-  slogan: XXX
   formats:
     hd: 'yes'
     sd: 'yes'
