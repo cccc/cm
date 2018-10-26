@@ -145,8 +145,8 @@
 
   # pause source
   - name: create pause-source script
-    template: src="voctomix-scripts/pause-source.sh.j2"
-              dest="/opt/voctomix/scripts/pause-source.sh"
+    template: src="voctomix-scripts/pause-source.py.j2"
+              dest="/opt/voctomix/scripts/pause-source.py"
               mode=0755 owner=root group=root
 
   - name: create pause-source systemd-unit
@@ -194,9 +194,9 @@
               dest="/etc/systemd/system/music-source.service"
               mode=0644 owner=root group=root
 
-  - name: enable music-source service
+  - name: disable music-source service
     service: name=music-source.service
-             enabled=yes
+             enabled=no
     when: voctomix.music
 
 

@@ -13,7 +13,7 @@ if [ -f "${KEEPASS_VERSION_CONFIG}" ]; then
     echo "keepass checkout must be newer or equal to ${KEEPASS_REQUIRED_VERSION}, which it isn't"
     echo "do a git pull before continuing"
 
-    exit 1
+    # exit 1
   fi
 fi
 
