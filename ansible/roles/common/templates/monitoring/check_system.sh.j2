@@ -18,7 +18,9 @@ send_mqtt_message () {
   if [ -n "$DEBUG" ]; then
     echo mosquitto_pub --capath /etc/ssl/certs/ -h \"{{ mqtt.server }}\" -u \"{{ mqtt.username }}\" -P \"{{ mqtt.password }}\" -t \"/voc/alert\" -m \"{\"level\":\"${error_level}\",\"component\":\"${component}\",\"msg\":\"${message}\"}\"
   else
-    mosquitto_pub --capath /etc/ssl/certs/ -h "{{ mqtt.server }}" -p 8883 -u "{{ mqtt.username }}" -P "{{ mqtt.password }}" -t "/voc/alert" -m "{\"level\":\"${error_level}\",\"component\":\"${component}\",\"msg\":\"${message}\"}"
+    for i in 1 2 3 ; do
+      mosquitto_pub --capath /etc/ssl/certs/ -h "{{ mqtt.server }}" -p 8883 -u "{{ mqtt.username }}" -P "{{ mqtt.password }}" -t "/voc/alert" -m "{\"level\":\"${error_level}\",\"component\":\"${component}\",\"msg\":\"${message}\"}" && break
+    done
   fi
 }
 
@@ -214,6 +216,9 @@ check_interfaces () {
 check_temperature () {
   if [ -d "/sys/class/hwmon/hwmon0" ]; then
     for hwmon in $(ls -d /sys/class/hwmon/hwmon*); do
+      if [ ! -e "${hwmon}/name" ]; then
+        break;
+      fi
       if [ $(cat ${hwmon}/name) = "coretemp" ]; then
         for temp in $(ls ${hwmon}/temp*_label | grep -o "temp."); do
           if [ ! -e "${hwmon}/${temp}_input" ] || [ ! -e "${hwmon}/${temp}_crit" ]; then
@@ -258,10 +263,26 @@ check_updates () {
 # send system uptime in every run
 ping () {
   hostname="$(hostname -f)"
+  primary_ip="$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f7)"
+  hostname=${hostname:-$primary_ip}
   uptime="$(cat /proc/uptime | awk '{ print $1 }')"
-  mosquitto_pub --capath /etc/ssl/certs/ -h "{{ mqtt.server }}" -p 8883 -u "{{ mqtt.username }}" -P "{{ mqtt.password }}" -t "/voc/checkin" -m "{ \"name\": \"${hostname}\", \"interval\": \"60\", \"additional_data\": { \"uptime\": ${uptime} }}"
-
+  for i in 1 2 3 ; do
+    mosquitto_pub --capath /etc/ssl/certs/ -h "{{ mqtt.server }}" -p 8883 -u "{{ mqtt.username }}" -P "{{ mqtt.password }}" -t "/voc/checkin" -m "{ \"name\": \"${hostname}\", \"interval\": \"60\", \"additional_data\": { \"uptime\": ${uptime} }}" && break
+  done
   debug_output "ping" $hostname $uptime
+}
+
+# inform watchdog about graceful shutdown
+shutdown () {
+  hostname="$(hostname -f)"
+  primary_ip="$(ip route get 8.8.8.8 | head -1 | cut -d' ' -f7)"
+  hostname=${hostname:-$primary_ip}
+
+  for i in 1 2 3 ; do
+    mosquitto_pub --capath /etc/ssl/certs/ -h "{{ mqtt.server }}" -p 8883 -u "{{ mqtt.username }}" -P "{{ mqtt.password }}" -t "/voc/shutdown" -m "{ \"name\": \"${hostname}\"}" && break
+  done
+
+  debug_output "shutdown" $hostname
 }
 
 # Check voc related websites
@@ -299,7 +320,11 @@ check_ac_power () {
   fi
 }
 
-
+# no checks on shutdown
+if [ "$1" = "shutdown" ] ; then
+	shutdown
+	exit 0
+fi
 
 # general checks
 ping
@@ -326,13 +351,6 @@ fi
 if [ "mng.ber.c3voc.de" = "$(hostname -f)" ]; then
   check_http
 fi
-
-
-# repeat ping to prevent false alarms due to packet loss
-sleep 1
-ping
-sleep 1
-ping
 
 
 exit 0

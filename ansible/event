@@ -79,6 +79,21 @@ audio-pi2.lan.c3voc.de stream=a2
 audio-pi3.lan.c3voc.de stream=a3
 audio-pi4.lan.c3voc.de stream=a4
 
+[tally-pis]
+tallycom1-1.lan.c3voc.de cam=cam1 encoder=encoder1.lan.c3voc.de
+tallycom1-2.lan.c3voc.de cam=cam2 encoder=encoder1.lan.c3voc.de
+tallycom2-1.lan.c3voc.de cam=cam1 encoder=encoder2.lan.c3voc.de
+tallycom2-2.lan.c3voc.de cam=cam2 encoder=encoder2.lan.c3voc.de
+tallycom3-1.lan.c3voc.de cam=cam1 encoder=encoder3.lan.c3voc.de
+tallycom3-2.lan.c3voc.de cam=cam2 encoder=encoder3.lan.c3voc.de
+tallycom4-1.lan.c3voc.de cam=cam1 encoder=encoder4.lan.c3voc.de
+tallycom4-2.lan.c3voc.de cam=cam2 encoder=encoder4.lan.c3voc.de
+tallycom5-1.lan.c3voc.de cam=cam1 encoder=encoder5.lan.c3voc.de
+tallycom5-2.lan.c3voc.de cam=cam2 encoder=encoder5.lan.c3voc.de
+tallycom6-1.lan.c3voc.de cam=cam1 encoder=encoder6.lan.c3voc.de
+tallycom6-2.lan.c3voc.de cam=cam2 encoder=encoder6.lan.c3voc.de
+tallycom23-1.lan.c3voc.de cam=cam23 encoder=encoder23.lan.c3voc.de
+
 # Local RZ
 [servers]
 ber.c3voc.de
@@ -93,7 +108,7 @@ mebibyte.c3voc.de
 
 # VMs
 monitoring.lan.c3voc.de
-router.lan.c3voc.de router_pbl_ip=194.95.66.38 router_pbl_mask=255.255.255.0 router_pbl_gw=194.95.66.1
+router.lan.c3voc.de
 phony.lan.c3voc.de
 fempeg.lan.c3voc.de
 web.c3voc.de
@@ -102,8 +117,10 @@ mng.ber.c3voc.de
 mngslave.dus.c3voc.de
 monitoring.c3voc.de
 build.c3voc.de
+releasing.c3voc.de crs_token="{{ lookup('keepass', 'ansible/worker-groups/releasing.username') }}" crs_secret="{{ lookup('keepass', 'ansible/worker-groups/releasing.password') }}"
 backup.c3voc.de
 testi.ber.c3voc.de ansible_ssh_port=16722 ansible_ssh_host=195.54.164.162
+maps.c3voc.de
 
 # Streaming server
 [relays]
