@@ -5,7 +5,7 @@ grabber_aspect: 16x9
 grabbersource_url_path: stream.mjpg
 
 # override streaming endpoint
-streaming_endpoint: q1
+#streaming_endpoint: q1
 
 # hd-direct, hd-voctomix
 # deploy with --tags encodermode
