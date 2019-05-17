@@ -20,14 +20,20 @@ voctomix_sources:
   -
     name: cam1
     type: decklink-internal
-    devicenumber: 0
+    devicenumber: 1
     video_connection: SDI
     video_mode: "1080i50"
     volume: 1.0
     deinterlace: "yes"
   -
+    name: cam2
+    type: decklink-internal
+    devicenumber: 0
+    video_connection: HDMI
+    video_mode: "1080p60"
+  -
     name: slides
     type: decklink-internal
-    devicenumber: 1
+    devicenumber: 2
     video_connection: HDMI
     video_mode: "1080p60"

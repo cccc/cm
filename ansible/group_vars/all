@@ -2,9 +2,9 @@
 # Event config
 event:
   timezone: Europe/Berlin
-  acronym: OC
-  name: OpenChaos
-  slogan: "Explosive talks at the C4"
+  acronym: jh19_koeln
+  name: Jugend hackt Köln 2019
+  slogan: "Mit Code die Welt verbessern"
   formats:
     hd: 'yes'
     sd: 'yes'
