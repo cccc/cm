@@ -2,9 +2,9 @@
 # Event config
 event:
   timezone: Europe/Berlin
-  acronym: OC
-  name: OpenChaos
-  slogan: "Explosive talks at the C4"
+  acronym: FSA
+  name: Freier Software Abend
+  slogan: "Das regelmäßige Treffen der Freien Software Software Freunde in Köln"
   formats:
     hd: 'yes'
     sd: 'yes'
