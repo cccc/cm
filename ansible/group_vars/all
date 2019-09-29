@@ -2,8 +2,8 @@
 # Event config
 event:
   timezone: Europe/Berlin
-  acronym: FSA
-  name: Freier Software Abend
+  acronym: fsacgn
+  name: Freier Software Abend K�ln
   slogan: "Das regelmäßige Treffen der Freien Software Software Freunde in Köln"
   formats:
     hd: 'yes'
