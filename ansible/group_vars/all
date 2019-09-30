@@ -3,7 +3,7 @@
 event:
   timezone: Europe/Berlin
   acronym: fsacgn
-  name: Freier Software Abend K�ln
+  name: Freier Software Abend Köln
   slogan: "Das regelmäßige Treffen der Freien Software Software Freunde in Köln"
   formats:
     hd: 'yes'
