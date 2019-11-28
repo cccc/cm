@@ -12,6 +12,10 @@ grabbersource_url_path: stream.mjpg
 # reboot encoder after changing
 encodermode: hd-voctomix
 
+# Anzahl der Stereo-Streams (1 = native, 2 = first translator, 3 = second translator, 4 = PA Backup)
+voctomix_audiostreams: 2
+voctomix_stream_suppress_audio_tracks: [1]
+
 # check `vainfo` before and read https://github.com/voc/voctomix/pull/87#issuecomment-250289443
 voctomix_vaapi: false
 
