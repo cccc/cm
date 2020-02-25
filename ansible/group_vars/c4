@@ -53,9 +53,9 @@ trusted_subnets:
 
 event:
   timezone: Europe/Berlin
-  acronym: OC
-  name: OpenChaos
-  slogan: "Explosive talks at the C4"
+  acronym: fsacgn
+  name: Freier Software Abend Köln
+  slogan: "Das regelmäßige Treffen der Freien Software Freunde in Köln"
   formats:
     hd: 'yes'
     sd: 'yes'
